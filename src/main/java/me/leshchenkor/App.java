@@ -2,6 +2,7 @@ package me.leshchenkor;
 
 import me.leshchenkor.entity.Event;
 import me.leshchenkor.entity.Participant;
+import me.leshchenkor.entity.Place;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.MetadataSources;
@@ -22,6 +23,7 @@ public class App {
             sessionFactory = new MetadataSources(REGISTRY)
                     .addAnnotatedClass(Event.class)
                     .addAnnotatedClass(Participant.class)
+                    .addAnnotatedClass(Place.class)
                     .buildMetadata()
                     .buildSessionFactory();
         } catch (Exception exc) {
@@ -53,11 +55,28 @@ public class App {
         session.save(event);
         session.getTransaction().commit();
 
-         result = session.createQuery("from Event").list();
+        result = session.createQuery("from Event").list();
         for (Event iterable : (List<Event>) result)
             System.out.println("Event ( " + iterable.getDate() + " ) " + iterable.getTitle() +
                     " participants " + iterable.getParticipantList().size());
         session.close();
+
+        session = sessionFactory.openSession();
+        session.beginTransaction();
+        Place place = new Place("Moscow", "Lenina", "2");
+        session.save(place);
+        event = session.load(Event.class, 1L);
+        event.setPlace(place);
+        session.save(event);
+        session.getTransaction().commit();
+
+        result = session.createQuery("from Event").list();
+        for (Event iterable : (List<Event>) result)
+            System.out.println("Event ( " + iterable.getDate() + " ) " + iterable.getTitle() +
+                    " participants = "
+                    + iterable.getParticipantList().size()
+                    + " at the " + iterable.getPlace().getCity());
+        
 
         if (sessionFactory != null) {
             sessionFactory.close();

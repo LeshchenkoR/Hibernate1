@@ -11,9 +11,7 @@ public class Participant {
     private String firstName;
     private String lastName;
 
-    public Participant() {
-
-    }
+    public Participant() {}
 
     @Id
     @GeneratedValue(generator = "increment")
